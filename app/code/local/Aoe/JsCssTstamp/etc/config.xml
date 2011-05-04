@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<config>
+
+    <modules>
+        <Aoe_JsCssTstamp>
+            <version>0.0.1</version>
+        </Aoe_JsCssTstamp>
+    </modules>
+
+	<global>
+	
+        <helpers>
+            <aoejscsststamp>
+                <class>Aoe_JsCssTstamp_Helper</class>
+            </aoejscsststamp>
+        </helpers>
+
+		<models>
+			<aoejscsststamp>
+				<class>Aoe_JsCssTstamp_Model</class>
+			</aoejscsststamp>
+			<core>
+				<rewrite>
+					<design_package>Aoe_JsCssTstamp_Model_Package</design_package>
+				</rewrite>
+			</core>
+		</models>
+	</global>
+	
+</config>
