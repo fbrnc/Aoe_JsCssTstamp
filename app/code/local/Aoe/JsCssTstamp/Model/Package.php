@@ -7,6 +7,8 @@
  */
 class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 
+	const CACHEKEY = 'aoe_jscsststamp_versionkey';
+
 	/**
 	 * Overwrite original method in order to add a version key
 	 *
@@ -33,7 +35,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @param array $files
 	 * @return string
 	 */
-	public function getMergedCssUrl($files)	{
+	public function getMergedCssUrl($files) {
 		$versionKey = $this->getVersionKey($files);
 		$targetFilename = md5(implode(',', $files)) . '.' . $versionKey . '.css';
 		$targetDir = $this->_initMergerDir('css');
@@ -54,11 +56,10 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return int tstamp
 	 */
 	protected function getVersionKey($files) {
-		$tstamp = null;
-		if (is_array($files)) {
-			foreach ($files as $file) {
-				$tstamp = is_null($tstamp) ? filemtime($file) : max($tstamp, filemtime($file));
-			}
+		$tstamp = Mage::app()->loadCache(self::CACHEKEY);
+		if (empty($tstamp)) {
+			$tstamp = time();
+			Mage::app()->saveCache($tstamp, self::CACHEKEY);
 		}
 		return $tstamp;
 	}

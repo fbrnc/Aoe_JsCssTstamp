@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
 <config>
 
-    <modules>
-        <Aoe_JsCssTstamp>
-            <version>0.0.1</version>
-        </Aoe_JsCssTstamp>
-    </modules>
+	<modules>
+		<Aoe_JsCssTstamp>
+			<version>0.0.1</version>
+		</Aoe_JsCssTstamp>
+	</modules>
 
 	<global>
-	
-        <helpers>
-            <aoejscsststamp>
-                <class>Aoe_JsCssTstamp_Helper</class>
-            </aoejscsststamp>
-        </helpers>
+
+		<helpers>
+			<aoejscsststamp>
+				<class>Aoe_JsCssTstamp_Helper</class>
+			</aoejscsststamp>
+		</helpers>
 
 		<models>
 			<aoejscsststamp>
@@ -25,6 +25,19 @@
 				</rewrite>
 			</core>
 		</models>
+
+		<events>
+			<clean_media_cache_after>
+				<observers>
+					<aoejscsststamp>
+						<type>singleton</type>
+						<class>aoejscsststamp/observer</class>
+						<method>clean_media_cache_after</method>
+					</aoejscsststamp>
+				</observers>
+			</clean_media_cache_after>
+		</events>
+
 	</global>
 	
 </config>
