@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Rewriting package class to add some custom version key to bundled files
+ *
+ * @author Fabrizio Branca
+ */
 class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 
 	/**
@@ -15,7 +20,8 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		if (!$targetDir) {
 			return '';
 		}
-		if (Mage::helper('core')->mergeFiles($files, $targetDir . DS . $targetFilename, false, null, 'js')) {
+		$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
+		if ($coreHelper->mergeFiles($files, $targetDir . DS . $targetFilename, false, null, 'js')) {
 			return Mage::getBaseUrl('media') . 'js/' . $targetFilename;
 		}
 		return '';
@@ -34,7 +40,8 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		if (!$targetDir) {
 			return '';
 		}
-		if (Mage::helper('core')->mergeFiles($files, $targetDir . DS . $targetFilename, false, array($this, 'beforeMergeCss'), 'css')) {
+		$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
+		if ($coreHelper->mergeFiles($files, $targetDir . DS . $targetFilename, false, array($this, 'beforeMergeCss'), 'css')) {
 			return Mage::getBaseUrl('media') . 'css/' . $targetFilename;
 		}
 		return '';
