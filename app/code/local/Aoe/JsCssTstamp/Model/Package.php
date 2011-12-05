@@ -8,7 +8,7 @@
 class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 
 	/**
-	 * Overwrite original method in order to add filemtime as parameter
+	 * Overwrite original method in order to add a version key
 	 *
 	 * @param array $files
 	 * @return string
@@ -28,7 +28,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	}
 
 	/**
-	 * Overwrite original method in order to add filemtime as parameter
+	 * Overwrite original method in order to add a version key
 	 *
 	 * @param array $files
 	 * @return string
