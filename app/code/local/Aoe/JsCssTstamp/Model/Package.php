@@ -8,7 +8,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
     public function getMergedJsUrl($files) {
-    	$tstamp = $this->getYoungestFile($files);
+    	$tstamp = $this->getVersionKey($files);
         $targetFilename = md5(implode(',', $files)) . '.' . $tstamp . '.js';
         $targetDir = $this->_initMergerDir('js');
         if (!$targetDir) {
@@ -26,7 +26,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
      public function getMergedCssUrl($files) {
-    	$tstamp = $this->getYoungestFile($files);
+    	$tstamp = $this->getVersionKey($files);
         $targetFilename = md5(implode(',', $files)) . '.' . $tstamp . '.css';
         $targetDir = $this->_initMergerDir('css');
         if (!$targetDir) {
@@ -39,12 +39,12 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
      }
      
      /**
-      * Get the timestamp of the youngest file
+      * Get the timestamp of the youngest file as version key
       * 
       * @param array $files
       * @return int tstamp
       */
-     protected function getYoungestFile($files) {
+     protected function getVersionKey($files) {
      	$tstamp = null;
      	foreach ($files as $file) {
      		$tstamp = is_null($tstamp) ? filemtime($file) : max($tstamp, filemtime($file));
