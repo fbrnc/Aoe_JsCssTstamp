@@ -8,8 +8,8 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
     public function getMergedJsUrl($files) {
-    	$tstamp = $this->getVersionKey($files);
-        $targetFilename = md5(implode(',', $files)) . '.' . $tstamp . '.js';
+    	$versionKey = $this->getVersionKey($files);
+        $targetFilename = md5(implode(',', $files)) . '.' . $versionKey . '.js';
         $targetDir = $this->_initMergerDir('js');
         if (!$targetDir) {
             return '';
@@ -26,8 +26,8 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
      public function getMergedCssUrl($files) {
-    	$tstamp = $this->getVersionKey($files);
-        $targetFilename = md5(implode(',', $files)) . '.' . $tstamp . '.css';
+    	$versionKey = $this->getVersionKey($files);
+        $targetFilename = md5(implode(',', $files)) . '.' . $versionKey . '.css';
         $targetDir = $this->_initMergerDir('css');
         if (!$targetDir) {
             return '';
