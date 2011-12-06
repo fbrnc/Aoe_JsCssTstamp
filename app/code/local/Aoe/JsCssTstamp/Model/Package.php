@@ -16,17 +16,34 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
 	public function getMergedJsUrl($files) {
+		$mergedJsUrl = '';
 		$versionKey = $this->getVersionKey($files);
 		$targetFilename = md5(implode(',', $files)) . '.' . $versionKey . '.js';
 		$targetDir = $this->_initMergerDir('js');
 		if (!$targetDir) {
 			return '';
 		}
-		$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
-		if ($coreHelper->mergeFiles($files, $targetDir . DS . $targetFilename, false, null, 'js')) {
-			return Mage::getBaseUrl('media') . 'js/' . $targetFilename;
+
+		$path = $targetDir . DS . $targetFilename;
+
+		// check cdn (if available)
+		$cdnUrl = Mage::helper('aoejscsststamp')->getCdnUrl($path);
+		if ($cdnUrl) {
+			return $cdnUrl;
 		}
-		return '';
+
+		$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
+		if ($coreHelper->mergeFiles($files, $path, false, null, 'js')) {
+			$mergedJsUrl = Mage::getBaseUrl('media') . 'js/' . $targetFilename;
+		}
+
+		// store file to cdn (if available)
+		$cdnUrl = Mage::helper('aoejscsststamp')->storeInCdn($path);
+		if ($cdnUrl) {
+			return $cdnUrl;
+		}
+
+		return $mergedJsUrl;
 	}
 
 	/**
@@ -36,21 +53,38 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
 	public function getMergedCssUrl($files) {
+		$mergedCssUrl = '';
 		$versionKey = $this->getVersionKey($files);
 		$targetFilename = md5(implode(',', $files)) . '.' . $versionKey . '.css';
 		$targetDir = $this->_initMergerDir('css');
 		if (!$targetDir) {
 			return '';
 		}
-		$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
-		if ($coreHelper->mergeFiles($files, $targetDir . DS . $targetFilename, false, array($this, 'beforeMergeCss'), 'css')) {
-			return Mage::getBaseUrl('media') . 'css/' . $targetFilename;
+
+		$path = $targetDir . DS . $targetFilename;
+
+		// check cdn (if available)
+		$cdnUrl = Mage::helper('aoejscsststamp')->getCdnUrl($path);
+		if ($cdnUrl) {
+			return $cdnUrl;
 		}
-		return '';
+
+		$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
+		if ($coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeCss'), 'css')) {
+			$mergedCssUrl = Mage::getBaseUrl('media') . 'css/' . $targetFilename;
+		}
+
+		// store file to cdn (if available)
+		$cdnUrl = Mage::helper('aoejscsststamp')->storeInCdn($path);
+		if ($cdnUrl) {
+			return $cdnUrl;
+		}
+
+		return $mergedCssUrl;
 	}
 
 	/**
-	 * Get the timestamp of the youngest file as version key
+	 * Get a cached timestamp as version key
 	 *
 	 * @param array $files
 	 * @return int tstamp
