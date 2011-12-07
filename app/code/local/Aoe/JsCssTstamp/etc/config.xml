@@ -26,6 +26,17 @@
 			</core>
 		</models>
 
+		<blocks>
+			<aoejscsststamp>
+				<class>Aoe_JsCssTstamp_Block</class>
+			</aoejscsststamp>
+			<page>
+				<rewrite>
+					 <html_head>Aoe_JsCssTstamp_Block_Head</html_head>
+				</rewrite>
+			</page>
+		</blocks>
+
 		<events>
 			<clean_media_cache_after>
 				<observers>
