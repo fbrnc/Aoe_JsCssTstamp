@@ -100,7 +100,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 			}
 		}
 
-		if ($this->compressJs) {
+		if ($this->compressJs && false) {
 			// EXPERIMENTAL!
 			$tmpFile = tempnam(sys_get_temp_dir(), 'js_compression_');
 			file_put_contents($tmpFile, $contents);
