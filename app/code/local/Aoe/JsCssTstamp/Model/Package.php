@@ -86,13 +86,15 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	public function beforeMergeJs($file, $contents) {
 
 		if ($this->minifyJs) {
-			require_once Mage::getBaseDir('lib').'/aoe_jscsststamp/JSMin.php';
 			if ($this->debug) {
 				if (!isset($this->debugData[$file])) { $this->debugData[$file] = array(); }
 				$this->debugData[$file]['originalSize'] = strlen($contents);
 			}
 
-			$contents = JSMin::minify($contents);
+			// require_once Mage::getBaseDir('lib').'/aoe_jscsststamp/JSMin.php';
+			// $contents = JSMin::minify($contents);
+			require_once Mage::getBaseDir('lib').'/aoe_jscsststamp/JSMinPlus.php';
+			$contents = JSMinPlus::minify($contents);
 
 			if ($this->debug) {
 				if (!isset($this->debugData[$file])) { $this->debugData[$file] = array(); }
