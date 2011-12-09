@@ -187,7 +187,7 @@ class JSMinPlus
 				$elsePart = $n->elsePart ? $this->parseTree($n->elsePart) : null;
 
 				// quite a rancid hack to see if we should enclose the thenpart in brackets
-				if ($thenPart[0] != '{')
+				if (isset($thenPart[0]) && $thenPart[0] != '{')
 				{
 					if (strpos($thenPart, 'if(') !== false)
 						$thenPart = '{' . $thenPart . '}';
