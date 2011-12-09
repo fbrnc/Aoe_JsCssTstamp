@@ -12,4 +12,35 @@ class Aoe_JsCssTstamp_Model_Observer {
 		Mage::app()->removeCache(Aoe_JsCssTstamp_Model_Package::CACHEKEY);
 	}
 
+	/**
+	 * Set additional headers while uploading files to cdn
+	 *
+	 * @param Varien_Event_Observer $event
+	 * @return void
+	 */
+	public function imagecdn_upload_to_amazons3(Varien_Event_Observer $event) {
+		$path = $event->getData('fs_path');
+		$wrapper = $event->getData('wrapper'); /* @var $wrapper OnePica_ImageCdn_Model_Adapter_AmazonS3_Wrapper */
+		$headers = $wrapper->getHeaders();
+		if (preg_match('/\/media\/js\/.*\.js$/', $path)) {
+			if (Mage::getStoreConfig('dev/js/compress_files')) {
+				$headers['Content-Encoding'] = 'gzip';
+			}
+			$lifetime = Mage::getStoreConfig('dev/js/lifetime');
+			if (intval($lifetime)) {
+				$headers['Cache-Control'] = 'public, max-age=' . $lifetime;
+				$headers['Expires'] = gmdate("D, d M Y H:i:s", time() + $lifetime) . " GMT";
+			}
+		}
+		if (preg_match('/\/media\/css\/.*\.css$/', $path)) {
+			$lifetime = Mage::getStoreConfig('dev/css/lifetime');
+			if (intval($lifetime)) {
+				$headers['Cache-Control'] = 'public, max-age=' . $lifetime;
+				$headers['Expires'] = gmdate("D, d M Y H:i:s", time() + $lifetime) . " GMT";
+			}
+		}
+		$wrapper->setHeaders($headers);
+		Mage::log('Adding headers for file: ' . $path);
+	}
+
 }

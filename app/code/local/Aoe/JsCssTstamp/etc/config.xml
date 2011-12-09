@@ -47,8 +47,17 @@
 					</aoejscsststamp>
 				</observers>
 			</clean_media_cache_after>
+			<imagecdn_upload_to_amazons3>
+				<observers>
+					<apilog>
+						<type>singleton</type>
+						<class>aoejscsststamp/observer</class>
+						<method>imagecdn_upload_to_amazons3</method>
+					</apilog>
+				</observers>
+			</imagecdn_upload_to_amazons3>
 		</events>
 
 	</global>
-	
+
 </config>

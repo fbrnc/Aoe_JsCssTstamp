@@ -11,7 +11,19 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 
 	protected $sumOriginalJsSize;
 	protected $sumCompressedJsSize;
-	protected $debug = false;
+	protected $debug = true;
+	protected $minifyJs = true;
+	protected $compressJs = true;
+	protected $debugData = array();
+
+	/**
+	 * Compress
+	 */
+	public function __construct() {
+		$this->minifyJs = Mage::getStoreConfig('dev/js/minify_files');
+		$this->compressJs = Mage::getStoreConfig('dev/js/compress_files');
+		$this->debug = Mage::getStoreConfig('dev/js/debug');
+	}
 
 	/**
 	 * Overwrite original method in order to add a version key
@@ -36,9 +48,22 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 			return $cdnUrl;
 		}
 
+		$this->debugData = array();
+
 		$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
 		if ($coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeJs'), 'js')) {
 			$mergedJsUrl = Mage::getBaseUrl('media') . 'js/' . $targetFilename;
+		}
+
+		if ($this->debug) {
+			$sums = array('originalSize' => NULL, 'minifiedSize' => NULL, 'compressedSize' => NULL);
+			foreach ($this->debugData as $sizes) {
+				$sums['originalSize'] += $sizes['originalSize'];
+				if (isset($sizes['minifiedSize'])) { $sums['minifiedSize'] += $sizes['minifiedSize']; }
+				if (isset($sizes['compressedSize'])) { $sums['compressedSize'] += $sizes['compressedSize']; }
+			}
+			array_walk($sums, array($this, 'formatSize'));
+			Mage::log($targetFilename . ' ' . var_export($sums, 1));
 		}
 
 		// store file to cdn (if available)
@@ -59,40 +84,56 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
 	public function beforeMergeJs($file, $contents) {
-		require_once Mage::getBaseDir('lib').'/aoe_jscsststamp/JSMin.php';
-		if ($this->debug) {
-			$lengthBefore = strlen($contents);
-			$this->sumOriginalJsSize += $lengthBefore;
+
+		if ($this->minifyJs) {
+			require_once Mage::getBaseDir('lib').'/aoe_jscsststamp/JSMin.php';
+			if ($this->debug) {
+				if (!isset($this->debugData[$file])) { $this->debugData[$file] = array(); }
+				$this->debugData[$file]['originalSize'] = strlen($contents);
+			}
+
+			$contents = JSMin::minify($contents);
+
+			if ($this->debug) {
+				if (!isset($this->debugData[$file])) { $this->debugData[$file] = array(); }
+				$this->debugData[$file]['minifiedSize'] = strlen($contents);
+			}
 		}
 
-		$contents = JSMin::minify($contents);
+		if ($this->compressJs) {
+			// EXPERIMENTAL!
+			$tmpFile = tempnam(sys_get_temp_dir(), 'js_compression_');
+			file_put_contents($tmpFile, $contents);
+			shell_exec('gzip -c ' . $tmpFile . ' > ' . $tmpFile.'.gz');
+			Mage::log($tmpFile);
+			$contents = file_get_contents($tmpFile.'.gz');
+			if (empty($contents)) {
+				throw new Exception ('No contetn');
+			}
+			unlink($tmpFile);
+			unlink($tmpFile.'.gz');
 
-		if ($this->debug) {
-			$lengthAfter = strlen($contents);
-			$this->sumCompressedJsSize += $lengthAfter;
-			$saved = $lengthBefore - $lengthAfter;
-			$percent = 100 - round(100 * $lengthAfter / $lengthBefore);
-			$savedSoFar = $this->sumOriginalJsSize - $this->sumCompressedJsSize;
-			$percentSoFar = 100 - round(100 * $this->sumCompressedJsSize / $this->sumOriginalJsSize);
-			Mage::log(sprintf("Compressing %s: %s -> %s, Saved: %s (%s %%) | Total: %s -> %s, Saved: %s (%s %%)",
-				substr($file, -20),
-				$this->formatSize($lengthBefore),
-				$this->formatSize($lengthAfter),
-				$this->formatSize($saved),
-				$percent,
-				$this->formatSize($this->sumOriginalJsSize),
-				$this->formatSize($this->sumCompressedJsSize),
-				$this->formatSize($savedSoFar),
-				$percentSoFar
-			));
+			if ($this->debug) {
+				if (!isset($this->debugData[$file])) { $this->debugData[$file] = array(); }
+				$this->debugData[$file]['compressedSize'] = strlen($contents);
+			}
 		}
+
 		return $contents;
 	}
 
-	protected function formatSize($size) {
+	/**
+	 * Format size
+	 *
+	 * @param int $size
+	 * @return string
+	 */
+	protected function formatSize(&$size) {
 		$sizes = array(" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB");
-		if ($size == 0) { return('n/a'); } else {
-		return (round($size/pow(1024, ($i = floor(log($size, 1024)))), 2) . $sizes[$i]); }
+		if ($size != 0) {
+			$size = round($size/pow(1024, ($i = floor(log($size, 1024)))), 2) . $sizes[$i];
+		}
+		return $size;
 	}
 
 	/**
