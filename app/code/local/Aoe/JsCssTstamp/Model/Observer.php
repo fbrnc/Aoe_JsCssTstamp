@@ -22,14 +22,17 @@ class Aoe_JsCssTstamp_Model_Observer {
 		$path = $event->getData('fs_path');
 		$wrapper = $event->getData('wrapper'); /* @var $wrapper OnePica_ImageCdn_Model_Adapter_AmazonS3_Wrapper */
 		$headers = $wrapper->getHeaders();
+		$changed = false;
 		if (preg_match('/\/media\/js\/.*\.js$/', $path)) {
 			if (Mage::getStoreConfig('dev/js/compress_files')) {
 				$headers['Content-Encoding'] = 'gzip';
+				$changed = true;
 			}
 			$lifetime = Mage::getStoreConfig('dev/js/lifetime');
 			if (intval($lifetime)) {
 				$headers['Cache-Control'] = 'public, max-age=' . $lifetime;
 				$headers['Expires'] = gmdate("D, d M Y H:i:s", time() + $lifetime) . " GMT";
+				$changed = true;
 			}
 		}
 		if (preg_match('/\/media\/css\/.*\.css$/', $path)) {
@@ -37,10 +40,13 @@ class Aoe_JsCssTstamp_Model_Observer {
 			if (intval($lifetime)) {
 				$headers['Cache-Control'] = 'public, max-age=' . $lifetime;
 				$headers['Expires'] = gmdate("D, d M Y H:i:s", time() + $lifetime) . " GMT";
+				$changed = true;
 			}
 		}
-		$wrapper->setHeaders($headers);
-		Mage::log('Adding headers for file: ' . $path);
+		if ($changed) {
+			$wrapper->setHeaders($headers);
+			Mage::log('Adding headers for file while uploading to S3: ' . $path);
+		}
 	}
 
 }
