@@ -121,6 +121,8 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 			}
 		}
 
+		$contents = "\n\n/* FILE: " . basename($file) . " */\n" . $contents;
+
 		return $contents;
 	}
 
