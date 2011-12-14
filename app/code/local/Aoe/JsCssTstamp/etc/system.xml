@@ -6,26 +6,16 @@
 			<groups>
 				<js>
 					<fields>
-						<minify_files translate="label">
-							<label>Minify JavaScript Files</label>
-							<comment><![CDATA[Only available if merging is enabled]]></comment>
+						<protocolRelativeUris translate="label">
+							<label>Protocol relative uris</label>
+							<comment><![CDATA[e.g. http://example.com -> //example.com]]></comment>
 							<frontend_type>select</frontend_type>
 							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>20</sort_order>
+							<sort_order>10</sort_order>
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-						</minify_files>
-						<!--<compress_files translate="label">
-							<label>Compress JavaScript Files</label>
-							<comment><![CDATA[Only available if merging is enabled]]></comment>
-							<frontend_type>select</frontend_type>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>30</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</compress_files>-->
+						</protocolRelativeUris>
 						<lifetime translate="label">
 							<label>Lifetime</label>
 							<comment><![CDATA[Expires and Cache-Control header lifetimes to be set while uploading to Amazon S3 (will only work with OnePica_ImageCDN enabled)]]></comment>
@@ -35,19 +25,20 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</lifetime>
-						<debug translate="label">
-							<label>Write debug to system.log</label>
-							<frontend_type>select</frontend_type>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>50</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</debug>
 					</fields>
 				</js>
 				<css>
 					<fields>
+						<protocolRelativeUris translate="label">
+							<label>Protocol relative uris</label>
+							<comment><![CDATA[e.g. http://example.com -> //example.com]]></comment>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+							<sort_order>10</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>1</show_in_store>
+						</protocolRelativeUris>
 						<lifetime translate="label">
 							<label>Lifetime</label>
 							<comment><![CDATA[Expires and Cache-Control header lifetimes to be set while uploading to Amazon S3 (will only work with OnePica_ImageCDN enabled)]]></comment>

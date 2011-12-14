@@ -9,20 +9,15 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 
 	const CACHEKEY = 'aoe_jscsststamp_versionkey';
 
-	protected $sumOriginalJsSize;
-	protected $sumCompressedJsSize;
-	protected $debug = true;
-	protected $minifyJs = true;
-	protected $compressJs = true;
-	protected $debugData = array();
+	protected $cssProtocolRelativeUris;
+	protected $jsProtocolRelativeUris;
 
 	/**
 	 * Compress
 	 */
 	public function __construct() {
-		$this->minifyJs = Mage::getStoreConfig('dev/js/minify_files');
-		$this->compressJs = Mage::getStoreConfig('dev/js/compress_files');
-		$this->debug = Mage::getStoreConfig('dev/js/debug');
+		$this->cssProtocolRelativeUris = Mage::getStoreConfig('dev/css/protocolRelativeUris');
+		$this->jsProtocolRelativeUris = Mage::getStoreConfig('dev/js/protocolRelativeUris');
 	}
 
 	/**
@@ -32,7 +27,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
 	public function getMergedJsUrl($files) {
-		$mergedJsUrl = '';
+
 		$versionKey = $this->getVersionKey($files);
 		$targetFilename = md5(implode(',', $files)) . '.' . $versionKey . '.js';
 		$targetDir = $this->_initMergerDir('js');
@@ -43,33 +38,23 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		$path = $targetDir . DS . $targetFilename;
 
 		// check cdn (if available)
-		$cdnUrl = Mage::helper('aoejscsststamp')->getCdnUrl($path);
-		if ($cdnUrl) {
-			return $cdnUrl;
-		}
+		$mergedJsUrl = Mage::helper('aoejscsststamp')->getCdnUrl($path);
 
-		$this->debugData = array();
-
-		$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
-		if ($coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeJs'), 'js')) {
-			$mergedJsUrl = Mage::getBaseUrl('media') . 'js/' . $targetFilename;
-		}
-
-		if ($this->debug) {
-			$sums = array('originalSize' => NULL, 'minifiedSize' => NULL, 'compressedSize' => NULL);
-			foreach ($this->debugData as $sizes) {
-				$sums['originalSize'] += $sizes['originalSize'];
-				if (isset($sizes['minifiedSize'])) { $sums['minifiedSize'] += $sizes['minifiedSize']; }
-				if (isset($sizes['compressedSize'])) { $sums['compressedSize'] += $sizes['compressedSize']; }
+		if (!$mergedJsUrl) {
+			$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
+			if ($coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeJs'), 'js')) {
+				$mergedJsUrl = Mage::getBaseUrl('media') . 'js/' . $targetFilename;
 			}
-			array_walk($sums, array($this, 'formatSize'));
-			Mage::log($targetFilename . ' ' . var_export($sums, 1));
+
+			// store file to cdn (if available)
+			$cdnUrl = Mage::helper('aoejscsststamp')->storeInCdn($path);
+			if ($cdnUrl) {
+				$mergedJsUrl = $cdnUrl;
+			}
 		}
 
-		// store file to cdn (if available)
-		$cdnUrl = Mage::helper('aoejscsststamp')->storeInCdn($path);
-		if ($cdnUrl) {
-			return $cdnUrl;
+		if ($this->jsProtocolRelativeUris) {
+			$mergedJsUrl = $this->convertToProtocolRelativeUri($mergedJsUrl);
 		}
 
 		return $mergedJsUrl;
@@ -84,60 +69,22 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
 	public function beforeMergeJs($file, $contents) {
-
-		if ($this->minifyJs) {
-			if ($this->debug) {
-				if (!isset($this->debugData[$file])) { $this->debugData[$file] = array(); }
-				$this->debugData[$file]['originalSize'] = strlen($contents);
-			}
-
-			// require_once Mage::getBaseDir('lib').'/aoe_jscsststamp/JSMin.php';
-			// $contents = JSMin::minify($contents);
-			require_once Mage::getBaseDir('lib').'/aoe_jscsststamp/JSMinPlus.php';
-			$contents = JSMinPlus::minify($contents);
-
-			if ($this->debug) {
-				if (!isset($this->debugData[$file])) { $this->debugData[$file] = array(); }
-				$this->debugData[$file]['minifiedSize'] = strlen($contents);
-			}
-		}
-
-		if ($this->compressJs && false) {
-			// EXPERIMENTAL!
-			$tmpFile = tempnam(sys_get_temp_dir(), 'js_compression_');
-			file_put_contents($tmpFile, $contents);
-			shell_exec('gzip -c ' . $tmpFile . ' > ' . $tmpFile.'.gz');
-			Mage::log($tmpFile);
-			$contents = file_get_contents($tmpFile.'.gz');
-			if (empty($contents)) {
-				throw new Exception ('No contetn');
-			}
-			unlink($tmpFile);
-			unlink($tmpFile.'.gz');
-
-			if ($this->debug) {
-				if (!isset($this->debugData[$file])) { $this->debugData[$file] = array(); }
-				$this->debugData[$file]['compressedSize'] = strlen($contents);
-			}
-		}
-
 		$contents = "\n\n/* FILE: " . basename($file) . " */\n" . $contents;
-
 		return $contents;
 	}
 
+
+
 	/**
-	 * Format size
+	 * Before merge CSS callback function
 	 *
-	 * @param int $size
+	 * @param string $file
+	 * @param string $contents
 	 * @return string
 	 */
-	protected function formatSize(&$size) {
-		$sizes = array(" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB");
-		if ($size != 0) {
-			$size = round($size/pow(1024, ($i = floor(log($size, 1024)))), 2) . $sizes[$i];
-		}
-		return $size;
+	public function beforeMergeCss($file, $contents) {
+		$contents = "\n\n/* FILE: " . basename($file) . " */\n" . $contents;
+		return parent::beforeMergeCss($file, $contents);
 	}
 
 	/**
@@ -147,7 +94,6 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
 	public function getMergedCssUrl($files) {
-		$mergedCssUrl = '';
 		$versionKey = $this->getVersionKey($files);
 		$targetFilename = md5(implode(',', $files)) . '.' . $versionKey . '.css';
 		$targetDir = $this->_initMergerDir('css');
@@ -158,20 +104,23 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		$path = $targetDir . DS . $targetFilename;
 
 		// check cdn (if available)
-		$cdnUrl = Mage::helper('aoejscsststamp')->getCdnUrl($path);
-		if ($cdnUrl) {
-			return $cdnUrl;
+		$mergedCssUrl = Mage::helper('aoejscsststamp')->getCdnUrl($path);
+		if (!$mergedCssUrl) {
+
+			$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
+			if ($coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeCss'), 'css')) {
+				$mergedCssUrl = Mage::getBaseUrl('media') . 'css/' . $targetFilename;
+			}
+
+			// store file to cdn (if available)
+			$cdnUrl = Mage::helper('aoejscsststamp')->storeInCdn($path);
+			if ($cdnUrl) {
+				$mergedCssUrl = $cdnUrl;
+			}
 		}
 
-		$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
-		if ($coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeCss'), 'css')) {
-			$mergedCssUrl = Mage::getBaseUrl('media') . 'css/' . $targetFilename;
-		}
-
-		// store file to cdn (if available)
-		$cdnUrl = Mage::helper('aoejscsststamp')->storeInCdn($path);
-		if ($cdnUrl) {
-			return $cdnUrl;
+		if ($this->cssProtocolRelativeUris) {
+			$mergedCssUrl = $this->convertToProtocolRelativeUri($mergedCssUrl);
 		}
 
 		return $mergedCssUrl;
@@ -190,6 +139,32 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 			Mage::app()->saveCache($tstamp, self::CACHEKEY);
 		}
 		return $tstamp;
+	}
+
+	/**
+	 * Convert uri to protocol independent uri
+	 * E.g. http://example.com -> //example.com
+	 *
+	 * @param string $uri
+	 * @return string
+	 */
+	protected function convertToProtocolRelativeUri($uri) {
+		return preg_replace('/^https?:/i', '', $uri);
+	}
+
+	/**
+	 * Convert uri to protocol independent uri
+	 * E.g. http://example.com -> //example.com
+	 *
+	 * @param $uri
+	 * @return mixed
+	 */
+	protected function _prepareUrl($uri) {
+		$uri = parent::_prepareUrl($uri);
+		if ($this->cssProtocolRelativeUris) {
+			$uri = $this->convertToProtocolRelativeUri($uri);
+		}
+		return $uri;
 	}
 
 }
