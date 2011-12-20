@@ -36,27 +36,22 @@ class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head {
 		// remove all non js items
 		foreach ($this->_data['items'] as $key => $item) {
 
-			// no js file
 			if (!in_array($item['type'], array('js', 'skin_js'))) {
+				// no js file
 				unset($this->_data['items'][$key]);
+			} elseif (!empty($this->_data['items'][$key]['processed'])) {
+				// was processed before
+				unset($this->_data['items'][$key]);
+			} elseif (!in_array($this->_data['items'][$key]['bucket'], $includeBuckets)) {
+				// does not match white list
+				unset($this->_data['items'][$key]);
+			} elseif (in_array($this->_data['items'][$key]['bucket'], $excludeBuckets)) {
+				// matches the black list
+				unset($this->_data['items'][$key]);
+			} else {
+				$backupItems[$key]['processed'] = true;
 			}
 
-			// was processed before
-			if (!empty($this->_data['items'][$key]['processed'])) {
-				unset($this->_data['items'][$key]);
-			}
-
-			// does not match white list
-			if (!in_array($this->_data['items'][$key]['bucket'], $includeBuckets)) {
-				unset($this->_data['items'][$key]);
-			}
-
-			// matches the black list
-			if (in_array($this->_data['items'][$key]['bucket'], $excludeBuckets)) {
-				unset($this->_data['items'][$key]);
-			}
-
-			$backupItems[$key]['processed'] = true;
 		}
 
 		$html = $this->getCssJsHtml();
@@ -119,6 +114,8 @@ class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head {
 		$res = parent::addItem($type, $name, $params, $if, $cond);
 		if (is_array($this->_data['items'][$type.'/'.$name])) {
 			$this->_data['items'][$type.'/'.$name]['bucket'] = is_null($bucket) ? 'default' : $bucket;
+		} else {
+			throw new Exception("No configuration found for $type/$name.");
 		}
 		return $res;
 	}
@@ -196,11 +193,26 @@ class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head {
 	 * @param string $params
 	 * @param string $if
 	 * @param string $cond
-	 * @param strnig $bucket
+	 * @param string $bucket
 	 * @return Mage_Page_Block_Html_Head
 	 */
 	public function addSkinJs($name, $params = "", $if=NULL, $cond=NULL, $bucket=NULL) {
 		$this->addItem('skin_js', $name, $params, $if, $cond, $bucket);
+		return $this;
+	}
+
+	/**
+	 * Add Skin JS bottom
+	 * convenience method
+	 *
+	 * @param string $name
+	 * @param string $params
+	 * @param string $if
+	 * @param string $cond
+	 * @return Mage_Page_Block_Html_Head
+	 */
+	public function addSkinJsBottom($name, $params = "", $if=NULL, $cond=NULL) {
+		$this->addItem('skin_js', $name, $params, $if, $cond, 'bottomjs');
 		return $this;
 	}
 
@@ -219,6 +231,5 @@ class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head {
 		$this->addItem('skin_css', $name, $params, $if, $cond, $bucket);
 		return $this;
 	}
-
 
 }
