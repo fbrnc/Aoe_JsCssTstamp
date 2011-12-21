@@ -8,6 +8,20 @@
 class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head {
 
 	/**
+	 * Get HEAD HTML with CSS/JS/RSS definitions
+	 * (actually it also renders other elements, TODO: fix it up or rename this method)
+	 *
+	 * @return string
+	 */
+	public function getCssJsHtml() {
+		if (!isset($this->_data['items'])) {
+   			return '';
+		}
+		return parent::getCssJsHtml();
+	}
+
+
+	/**
 	 * Get Js html
 	 *
 	 * @return string
