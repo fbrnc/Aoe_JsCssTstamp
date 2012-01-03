@@ -37,20 +37,25 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 
 		$path = $targetDir . DS . $targetFilename;
 
-		// check cdn (if available)
-		$mergedJsUrl = Mage::helper('aoejscsststamp')->getCdnUrl($path);
+		// relative path
+		$relativePath = str_replace(Mage::getBaseDir('media'), '', $path);
+		$relativePath = ltrim($relativePath, DIRECTORY_SEPARATOR);
 
-		if (!$mergedJsUrl) {
+		$dbHelper = Mage::helper('core/file_storage_database'); /* @var $dbHelper Mage_Core_Helper_File_Storage_Database */
+		$fileModel = $dbHelper->getStorageDatabaseModel(); /* @var $fileModel Mage_Core_Model_File_Storage_Database */
+
+		// this needs to be done only once and might go into a setup script
+		$fileModel->getDirectoryModel()->prepareStorage();
+		$fileModel->prepareStorage();
+
+		$mergedJsUrl = Mage::getBaseUrl('media') . 'js/' . $targetFilename;
+
+		if (!$fileModel->fileExists($relativePath)) {
 			$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
-			if ($coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeJs'), 'js')) {
-				$mergedJsUrl = Mage::getBaseUrl('media') . 'js/' . $targetFilename;
+			if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeJs'), 'js')) {
+				Mage::throwException('Error while merging files!');
 			}
-
-			// store file to cdn (if available)
-			$cdnUrl = Mage::helper('aoejscsststamp')->storeInCdn($path);
-			if ($cdnUrl) {
-				$mergedJsUrl = $cdnUrl;
-			}
+			$fileModel->saveFile($relativePath);
 		}
 
 		if ($this->jsProtocolRelativeUris) {
