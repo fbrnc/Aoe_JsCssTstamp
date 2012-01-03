@@ -11,13 +11,32 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 
 	protected $cssProtocolRelativeUris;
 	protected $jsProtocolRelativeUris;
+	protected $storeCssInDb;
+	protected $storeJsInDb;
+	protected $dbStorage;
 
 	/**
-	 * Compress
+	 * Constructor
+	 *
+	 * Hint: Parent class is a plain php class not extending anything. So don't try to move this content to _construct()
 	 */
 	public function __construct() {
 		$this->cssProtocolRelativeUris = Mage::getStoreConfig('dev/css/protocolRelativeUris');
 		$this->jsProtocolRelativeUris = Mage::getStoreConfig('dev/js/protocolRelativeUris');
+		$this->storeCssInDb = Mage::getStoreConfig('dev/css/storeInDb');
+		$this->storeJsInDb = Mage::getStoreConfig('dev/js/storeInDb');
+	}
+
+	/**
+	 * Get db storage
+	 *
+	 * @return Mage_Core_Model_File_Storage_Database
+	 */
+	protected function getDbStorage() {
+		if (is_null($this->dbStorage)) {
+			$this->dbStorage = Mage::helper('core/file_storage_database')->getStorageDatabaseModel();
+		}
+		return $this->dbStorage;
 	}
 
 	/**
@@ -41,21 +60,16 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		$relativePath = str_replace(Mage::getBaseDir('media'), '', $path);
 		$relativePath = ltrim($relativePath, DIRECTORY_SEPARATOR);
 
-		$dbHelper = Mage::helper('core/file_storage_database'); /* @var $dbHelper Mage_Core_Helper_File_Storage_Database */
-		$fileModel = $dbHelper->getStorageDatabaseModel(); /* @var $fileModel Mage_Core_Model_File_Storage_Database */
-
-		// this needs to be done only once and might go into a setup script
-		$fileModel->getDirectoryModel()->prepareStorage();
-		$fileModel->prepareStorage();
+		$dbStorage = $this->getDbStorage(); /* @var $dbStorage Mage_Core_Model_File_Storage_Database */
 
 		$mergedJsUrl = Mage::getBaseUrl('media') . 'js/' . $targetFilename;
 
-		if (!$fileModel->fileExists($relativePath)) {
+		if (!$dbStorage->fileExists($relativePath)) {
 			$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
 			if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeJs'), 'js')) {
-				Mage::throwException('Error while merging files!');
+				Mage::throwException('Error while merging js files!');
 			}
-			$fileModel->saveFile($relativePath);
+			$dbStorage->saveFile($relativePath);
 		}
 
 		if ($this->jsProtocolRelativeUris) {
@@ -64,7 +78,6 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 
 		return $mergedJsUrl;
 	}
-
 
 	/**
 	 * Before merge JS callback function
@@ -77,8 +90,6 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		$contents = "\n\n/* FILE: " . basename($file) . " */\n" . $contents;
 		return $contents;
 	}
-
-
 
 	/**
 	 * Before merge CSS callback function
@@ -108,20 +119,20 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 
 		$path = $targetDir . DS . $targetFilename;
 
-		// check cdn (if available)
-		$mergedCssUrl = Mage::helper('aoejscsststamp')->getCdnUrl($path);
-		if (!$mergedCssUrl) {
+		// relative path
+		$relativePath = str_replace(Mage::getBaseDir('media'), '', $path);
+		$relativePath = ltrim($relativePath, DIRECTORY_SEPARATOR);
 
+		$dbStorage = $this->getDbStorage(); /* @var $dbStorage Mage_Core_Model_File_Storage_Database */
+
+		$mergedCssUrl = Mage::getBaseUrl('media') . 'css/' . $targetFilename;
+
+		if (!$dbStorage->fileExists($relativePath)) {
 			$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
 			if ($coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeCss'), 'css')) {
-				$mergedCssUrl = Mage::getBaseUrl('media') . 'css/' . $targetFilename;
+				Mage::throwException('Error while merging css files!');
 			}
-
-			// store file to cdn (if available)
-			$cdnUrl = Mage::helper('aoejscsststamp')->storeInCdn($path);
-			if ($cdnUrl) {
-				$mergedCssUrl = $cdnUrl;
-			}
+			$dbStorage->saveFile($relativePath);
 		}
 
 		if ($this->cssProtocolRelativeUris) {
@@ -161,8 +172,8 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * Convert uri to protocol independent uri
 	 * E.g. http://example.com -> //example.com
 	 *
-	 * @param $uri
-	 * @return mixed
+	 * @param string $uri
+	 * @return string
 	 */
 	protected function _prepareUrl($uri) {
 		$uri = parent::_prepareUrl($uri);

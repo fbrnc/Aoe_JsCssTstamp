@@ -3,7 +3,7 @@
 
 	<modules>
 		<Aoe_JsCssTstamp>
-			<version>0.1.0</version>
+			<version>0.2.0</version>
 		</Aoe_JsCssTstamp>
 	</modules>
 
@@ -47,16 +47,14 @@
 					</aoejscsststamp>
 				</observers>
 			</clean_media_cache_after>
-			<imagecdn_upload_to_amazons3>
-				<observers>
-					<apilog>
-						<type>singleton</type>
-						<class>aoejscsststamp/observer</class>
-						<method>imagecdn_upload_to_amazons3</method>
-					</apilog>
-				</observers>
-			</imagecdn_upload_to_amazons3>
 		</events>
+
+		<resources>
+			<aoejscsststamp_setup>
+				<setup><module>Aoe_JsCssTstamp</module></setup>
+				<connection><use>core_setup</use></connection>
+			</aoejscsststamp_setup>
+		</resources>
 
 	</global>
 
