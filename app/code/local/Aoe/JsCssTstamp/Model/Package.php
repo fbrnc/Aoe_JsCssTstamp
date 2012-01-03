@@ -67,7 +67,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		if (!$dbStorage->fileExists($relativePath)) {
 			$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
 			if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeJs'), 'js')) {
-				Mage::throwException('Error while merging js files!');
+				Mage::throwException('Error while merging js files to path ' . $relativePath);
 			}
 			$dbStorage->saveFile($relativePath);
 		}
@@ -129,8 +129,8 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 
 		if (!$dbStorage->fileExists($relativePath)) {
 			$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
-			if ($coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeCss'), 'css')) {
-				Mage::throwException('Error while merging css files!');
+			if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeCss'), 'css')) {
+				Mage::throwException('Error while merging css files to path: ' . $relativePath);
 			}
 			$dbStorage->saveFile($relativePath);
 		}
