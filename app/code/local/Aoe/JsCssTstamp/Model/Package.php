@@ -14,6 +14,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	protected $storeCssInDb;
 	protected $storeJsInDb;
 	protected $dbStorage;
+	protected $addTstampToAssets;
 
 	/**
 	 * Constructor
@@ -25,6 +26,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		$this->jsProtocolRelativeUris = Mage::getStoreConfig('dev/js/protocolRelativeUris');
 		$this->storeCssInDb = Mage::getStoreConfig('dev/css/storeInDb');
 		$this->storeJsInDb = Mage::getStoreConfig('dev/js/storeInDb');
+		$this->addTstampToAssets = Mage::getStoreConfig('dev/css/addTstampToAssets');
 	}
 
 	/**
@@ -148,7 +150,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @param array $files
 	 * @return int tstamp
 	 */
-	protected function getVersionKey($files) {
+	protected function getVersionKey($files=array()) {
 		$tstamp = Mage::app()->loadCache(self::CACHEKEY);
 		if (empty($tstamp)) {
 			$tstamp = time();
@@ -179,6 +181,14 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		$uri = parent::_prepareUrl($uri);
 		if ($this->cssProtocolRelativeUris) {
 			$uri = $this->convertToProtocolRelativeUri($uri);
+		}
+
+		if ($this->addTstampToAssets) {
+			Mage::log('Aoe_JsCssTsamp: ' . $uri);
+			$matches = array();
+			if (preg_match('/(.*)\.(gif|png|jpg)$/i', $uri, $matches)) {
+				$uri = $matches[1] . '.' . $this->getVersionKey() . '.' . $matches[2];
+			}
 		}
 		return $uri;
 	}
