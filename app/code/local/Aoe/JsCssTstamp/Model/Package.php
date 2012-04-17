@@ -154,7 +154,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		$tstamp = Mage::app()->loadCache(self::CACHEKEY);
 		if (empty($tstamp)) {
 			$tstamp = time();
-			Mage::app()->saveCache($tstamp, self::CACHEKEY);
+			Mage::app()->saveCache($tstamp, self::CACHEKEY, array(), null);
 		}
 		return $tstamp;
 	}
