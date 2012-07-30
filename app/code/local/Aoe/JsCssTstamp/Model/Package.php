@@ -89,6 +89,11 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
 	public function beforeMergeJs($file, $contents) {
+        $minContent = $this->useMinifiedVersion($file);
+        if($minContent !== false){
+            $contents = $minContent;
+        }
+
 		$contents = "\n\n/* FILE: " . basename($file) . " */\n" . $contents;
 		return $contents;
 	}
@@ -101,9 +106,31 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
 	public function beforeMergeCss($file, $contents) {
+        $minContent = $this->useMinifiedVersion($file);
+        if($minContent !== false){
+            $contents = $minContent;
+        }
+
 		$contents = "\n\n/* FILE: " . basename($file) . " */\n" . $contents;
 		return parent::beforeMergeCss($file, $contents);
 	}
+
+    /**
+     * Checks if minified Version of the given file exist. And if returns its content
+     *
+     * @param string $file
+     * @return string|bool the content of the file else false
+     */
+    protected function useMinifiedVersion($file){
+        $parts = pathinfo($file);
+        $minFile = $parts['dirname'].'/'.$parts['filename'] . '.min.' . $parts['extension']; // Add .min to the extension of the original filename
+
+        if(file_exists($minFile)){
+            return file_get_contents($minFile) . "\n"; // return the content of the min file @see Mage_Core_Helper_Data -> mergeFiles()
+        }
+        return false;
+    }
+
 
 	/**
 	 * Overwrite original method in order to add a version key
@@ -112,6 +139,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * @return string
 	 */
 	public function getMergedCssUrl($files) {
+
 		$versionKey = $this->getVersionKey($files);
 		$targetFilename = md5(implode(',', $files)) . '.' . $versionKey . '.css';
 		$targetDir = $this->_initMergerDir('css');
