@@ -57,5 +57,16 @@
 		</resources>
 
 	</global>
+	
+	<default>
+		<dev>
+			<js>
+				<storage>file</storage>
+			</js>
+			<css>
+				<storage>file</storage>
+			</css>
+		</dev>
+	</default>
 
 </config>
