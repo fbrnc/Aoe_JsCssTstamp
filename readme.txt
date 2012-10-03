@@ -1,4 +1,4 @@
-Add following lines to your .htaccess file
+Add following lines to your .htaccess file if storage is set to "database"
 
 # Get merged js and css files from database using get.php if they do not exist in filesystem
 RewriteCond %{REQUEST_URI} ^/media/css/.*\.css$ [OR]

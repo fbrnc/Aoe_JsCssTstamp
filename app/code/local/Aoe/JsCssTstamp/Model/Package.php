@@ -11,10 +11,13 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 
 	protected $cssProtocolRelativeUris;
 	protected $jsProtocolRelativeUris;
-	protected $storeCssInDb;
-	protected $storeJsInDb;
-	protected $dbStorage;
+
+	protected $storageCss;
+	protected $storageJs;
+
 	protected $addTstampToAssets;
+
+	protected $dbStorage;
 
 	/**
 	 * Constructor
@@ -24,8 +27,10 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	public function __construct() {
 		$this->cssProtocolRelativeUris = Mage::getStoreConfig('dev/css/protocolRelativeUris');
 		$this->jsProtocolRelativeUris = Mage::getStoreConfig('dev/js/protocolRelativeUris');
-		$this->storeCssInDb = Mage::getStoreConfig('dev/css/storeInDb');
-		$this->storeJsInDb = Mage::getStoreConfig('dev/js/storeInDb');
+
+		$this->storageCss = Mage::getStoreConfig('dev/css/storage');
+		$this->storageJs = Mage::getStoreConfig('dev/js/storage');
+
 		$this->addTstampToAssets = Mage::getStoreConfig('dev/css/addTstampToAssets');
 	}
 
@@ -62,17 +67,69 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		$relativePath = str_replace(Mage::getBaseDir('media'), '', $path);
 		$relativePath = ltrim($relativePath, DIRECTORY_SEPARATOR);
 
-		$dbStorage = $this->getDbStorage(); /* @var $dbStorage Mage_Core_Model_File_Storage_Database */
-
 		$mergedJsUrl = Mage::getBaseUrl('media') . 'js/' . $targetFilename;
 
-		if (!$dbStorage->fileExists($relativePath)) {
-			$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
+		$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
+
+		if ($this->storageJs == Aoe_JsCssTstamp_Model_System_Config_Source_Storage::DATABASE) {
+
+			/**
+			 * Using the database to store the files.
+			 * First check if the file exists in the datase. If it exists, no further action is required.
+			 * The file will be delivered directly by a mod_rewrite rule pointing to get.php
+			 */
+
+			$dbStorage = $this->getDbStorage(); /* @var $dbStorage Mage_Core_Model_File_Storage_Database */
+
+			if (!$dbStorage->fileExists($relativePath)) {
+				if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeJs'), 'js')) {
+					Mage::throwException('Error while merging js files to path ' . $relativePath);
+				}
+				$dbStorage->saveFile($relativePath);
+			}
+
+		} elseif ($this->storageJs == Aoe_JsCssTstamp_Model_System_Config_Source_Storage::FILESYSTEM) {
+
+			/**
+			 * Using the file system to store the file
+			 */
 			if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeJs'), 'js')) {
 				Mage::throwException('Error while merging js files to path ' . $relativePath);
 			}
-			$dbStorage->saveFile($relativePath);
+
+		} elseif ($this->storageJs == Aoe_JsCssTstamp_Model_System_Config_Source_Storage::CDN) {
+
+			/**
+			 * Using the cdn to store the file.
+			 * Make sure to point the urls correctly to the cdn so that files will be delivered directly from there
+			 * Also note, that Cloudfront using an Amazon S3 bucket does not support compression!
+			 */
+			// check cdn (if available)
+			$cdnUrl = Mage::helper('aoejscsststamp')->getCdnUrl($path);
+
+			if (!$cdnUrl) {
+
+				if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeJs'), 'js')) {
+					Mage::throwException('Error while merging js files to path ' . $relativePath);
+				}
+
+				// store file to cdn (if available)
+				$cdnUrl = Mage::helper('aoejscsststamp')->storeInCdn($path);
+
+			}
+
+			if ($cdnUrl) {
+				$mergedJsUrl = $cdnUrl;
+			} else {
+				Mage::throwException('Error while processsing url');
+			}
+
+		} else {
+
+			Mage::throwException('Unsupported storage mode');
+
 		}
+
 
 		if ($this->jsProtocolRelativeUris) {
 			$mergedJsUrl = $this->convertToProtocolRelativeUri($mergedJsUrl);
@@ -125,16 +182,56 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		$relativePath = str_replace(Mage::getBaseDir('media'), '', $path);
 		$relativePath = ltrim($relativePath, DIRECTORY_SEPARATOR);
 
+		$mergedCssUrl = Mage::getBaseUrl('media') . 'css/' . $targetFilename;
+		$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
+
 		$dbStorage = $this->getDbStorage(); /* @var $dbStorage Mage_Core_Model_File_Storage_Database */
 
-		$mergedCssUrl = Mage::getBaseUrl('media') . 'css/' . $targetFilename;
+		if ($this->storageCss == Aoe_JsCssTstamp_Model_System_Config_Source_Storage::DATABASE) {
 
-		if (!$dbStorage->fileExists($relativePath)) {
-			$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
-			if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeCss'), 'css')) {
-				Mage::throwException('Error while merging css files to path: ' . $relativePath);
+			if (!$dbStorage->fileExists($relativePath)) {
+
+				if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeCss'), 'css')) {
+					Mage::throwException('Error while merging css files to path: ' . $relativePath);
+				}
+				$dbStorage->saveFile($relativePath);
 			}
-			$dbStorage->saveFile($relativePath);
+
+		} elseif ($this->storageCss == Aoe_JsCssTstamp_Model_System_Config_Source_Storage::FILESYSTEM) {
+
+			/**
+			 * Using the file system to store the file
+			 */
+			if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeCss'), 'css')) {
+				Mage::throwException('Error while merging css files to path ' . $relativePath);
+			}
+
+		} elseif ($this->storageCss == Aoe_JsCssTstamp_Model_System_Config_Source_Storage::CDN) {
+
+			// check cdn (if available)
+			$cdnUrl = Mage::helper('aoejscsststamp')->getCdnUrl($path);
+			if (!$cdnUrl) {
+
+				$coreHelper = Mage::helper('core'); /* @var $coreHelper Mage_Core_Helper_Data */
+				if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMergeCss'), 'css')) {
+					Mage::throwException('Error while merging css files to path ' . $relativePath);
+				}
+
+				// store file to cdn (if available)
+				$cdnUrl = Mage::helper('aoejscsststamp')->storeInCdn($path);
+			}
+
+			if ($cdnUrl) {
+				$mergedJsUrl = $cdnUrl;
+			} else {
+				Mage::throwException('Error while processsing url');
+			}
+
+
+		} else {
+
+			Mage::throwException('Unsupported storage mode');
+
 		}
 
 		if ($this->cssProtocolRelativeUris) {
