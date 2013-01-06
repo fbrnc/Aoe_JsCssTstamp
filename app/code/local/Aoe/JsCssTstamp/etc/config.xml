@@ -65,6 +65,7 @@
 			</js>
 			<css>
 				<storage>file</storage>
+				<addTstampToAssets>0</addTstampToAssets>
 			</css>
 		</dev>
 	</default>
