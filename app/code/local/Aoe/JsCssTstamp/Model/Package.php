@@ -281,7 +281,9 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		}
 
 		if ($this->addTstampToAssets) {
-			Mage::log('Aoe_JsCssTsamp: ' . $uri);
+		    if (Mage::getStoreConfigFlag('dev/log/aoeJsCssTstampActive')) {
+		        Mage::log('Aoe_JsCssTstamp: ' . $uri);
+		    }
 			$matches = array();
 			if (preg_match('/(.*)\.(gif|png|jpg)$/i', $uri, $matches)) {
 				$uri = $matches[1] . '.' . $this->getVersionKey() . '.' . $matches[2];
