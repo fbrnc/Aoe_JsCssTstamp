@@ -8,7 +8,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule .* ../get.php [L]
 
 # If you enable the Add timestamps to asset files feature, also add these lines to your .htaccess file
-RewriteCond %{REQUEST_URI} ^/skin/
 RewriteRule (.*)\.(\d{10})\.(gif|png|jpg)$ $1.$3 [L,NC]
 
 If you use NGINX, add the following lines to your nginx config within the server block for your site 
@@ -32,5 +31,5 @@ location @handlercss {
 
 # If you enable the Add timestamps to asset files feature, also add these lines to your nginx config file
 # they should NOT be added to any particular location block.
-rewrite "^/skin/(.*)\.(\d{10})\.(gif|png|jpg)$" /skin/$1.$3 last;
+rewrite "^/(.*)\.(\d{10})\.(gif|png|jpg)$" /$1.$3 last;
 
