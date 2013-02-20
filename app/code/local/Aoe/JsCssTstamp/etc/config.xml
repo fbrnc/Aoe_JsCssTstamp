@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 <config>
-
 	<modules>
 		<Aoe_JsCssTstamp>
-			<version>0.3.0</version>
+			<version>0.3.1</version>
 		</Aoe_JsCssTstamp>
 	</modules>
 
 	<global>
-
 		<helpers>
 			<aoejscsststamp>
 				<class>Aoe_JsCssTstamp_Helper</class>
@@ -55,7 +53,15 @@
 				<connection><use>core_setup</use></connection>
 			</aoejscsststamp_setup>
 		</resources>
-
 	</global>
-
+	<default>
+		<dev>
+			<js>
+				<storeMinifiedJsFolder><![CDATA[minified/js]]></storeMinifiedJsFolder>
+			</js>
+			<css>
+				<storeMinifiedCssFolder><![CDATA[minified/css]]></storeMinifiedCssFolder>
+			</css>
+		</dev>
+	</default>
 </config>
