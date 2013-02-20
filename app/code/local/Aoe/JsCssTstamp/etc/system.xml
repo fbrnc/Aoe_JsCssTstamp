@@ -1,12 +1,11 @@
 <?xml version="1.0" ?>
 <config>
 	<sections>
-
-		<dev translate="label" module="apilog">
+		<dev translate="label" module="aoejscsststamp">
 			<groups>
 				<js>
 					<fields>
-						<protocolRelativeUris translate="label">
+						<protocolRelativeUris translate="label comment">
 							<label>Protocol relative uris</label>
 							<comment><![CDATA[e.g. http://example.com -> //example.com]]></comment>
 							<frontend_type>select</frontend_type>
@@ -16,7 +15,7 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</protocolRelativeUris>
-						<storeInDb translate="label">
+						<storeInDb translate="label comment">
 							<label>Store files in database</label>
 							<comment><![CDATA[Needed on a multi-server setup. Check readme.txt file for additional rewrite rule!]]></comment>
 							<frontend_type>select</frontend_type>
@@ -26,11 +25,20 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</storeInDb>
+						<storeMinifiedJsFolder translate="label comment">
+							<label>Minified js files folder</label>
+							<comment><![CDATA[Folder to additionaly look for minified versions of js files, for example minified/js]]></comment>
+							<frontend_type>text</frontend_type>
+							<sort_order>40</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>1</show_in_store>
+						</storeMinifiedJsFolder>
 					</fields>
 				</js>
 				<css>
 					<fields>
-						<protocolRelativeUris translate="label">
+						<protocolRelativeUris translate="label comment">
 							<label>Protocol relative uris</label>
 							<comment><![CDATA[e.g. http://example.com -> //example.com]]></comment>
 							<frontend_type>select</frontend_type>
@@ -40,7 +48,7 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</protocolRelativeUris>
-						<storeInDb translate="label">
+						<storeInDb translate="label comment">
 							<label>Store files in database</label>
 							<comment><![CDATA[Needed on a multi-server setup. Check readme.txt file for additional rewrite rule!]]></comment>
 							<frontend_type>select</frontend_type>
@@ -50,7 +58,7 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</storeInDb>
-						<addTstampToAssets translate="label">
+						<addTstampToAssets translate="label comment">
 							<label>Append timestamp to png/css/jpg files</label>
 							<comment><![CDATA[Check readme.txt for additional rewrite rule!]]></comment>
 							<frontend_type>select</frontend_type>
@@ -60,6 +68,15 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</addTstampToAssets>
+						<storeMinifiedCssFolder translate="label comment">
+							<label>Minified css files folder</label>
+							<comment><![CDATA[Folder to additionaly look for minified versions of css files, for example minified/css]]></comment>
+							<frontend_type>text</frontend_type>
+							<sort_order>40</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>1</show_in_store>
+						</storeMinifiedCssFolder>
 					</fields>
 				</css>
 			</groups>
