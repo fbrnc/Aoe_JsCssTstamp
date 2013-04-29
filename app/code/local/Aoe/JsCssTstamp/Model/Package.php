@@ -32,7 +32,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 		$this->storeMinifiedCssFolder = rtrim(Mage::getBaseDir(), DS)
 			. DS . trim(Mage::getStoreConfig('dev/css/storeMinifiedCssFolder'), DS);
 		$this->storeMinifiedJsFolder = rtrim(Mage::getBaseDir(), DS)
-			. DS . trim(Mage::getStoreConfig('dev/css/storeMinifiedJsFolder'), DS);
+			. DS . trim(Mage::getStoreConfig('dev/js/storeMinifiedJsFolder'), DS);
 	}
 
 	/**
