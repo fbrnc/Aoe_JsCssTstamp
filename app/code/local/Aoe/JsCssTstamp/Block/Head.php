@@ -135,10 +135,12 @@ class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head {
 
 		// lookup each file basing on current theme configuration
 		foreach ($skinItems as $params => $rows) {
-			$items[$params] = array(
-				'files' => array(),
-				'urls' => array(),
-			);
+			if (!isset($items[$params]['files'])) {
+				$items[$params] = array(
+					'files' => array(),
+					'urls' => array(),
+				);
+			}
 			foreach ($rows as $name) {
 				$items[$params]['files'][] = $designPackage->getFilename($name, array('_type' => 'skin'));
 				$items[$params]['urls'][]  = $designPackage->getSkinUrl($name, array());
