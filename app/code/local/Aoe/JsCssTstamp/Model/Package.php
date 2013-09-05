@@ -187,6 +187,15 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
      */
     protected function generateMergedUrl($type, array $files, $targetDir, $targetFilename)
     {
+        // This is to fix the secure/unsecure URL problem
+        $store = $this->getStore();
+        if ($store->isAdmin()) {
+                $secure = $store->isAdminUrlSecure();
+        } else {
+                $secure = $store->isFrontUrlSecure() && Mage::app()->getRequest()->isSecure();
+        }
+        $targetFilename = ($secure ? 's' : 'u') . '.' . $targetFilename;
+
         $path = $targetDir . DS . $targetFilename;
 
         // relative path
