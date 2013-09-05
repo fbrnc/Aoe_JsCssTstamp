@@ -11,8 +11,6 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
 
     protected $cssProtocolRelativeUris;
     protected $jsProtocolRelativeUris;
-    protected $storeCssInDb;
-    protected $storeJsInDb;
     protected $dbStorage;
     protected $addTstampToAssets;
     protected $storeMinifiedCssFolder;
@@ -27,8 +25,6 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
     {
         $this->cssProtocolRelativeUris = Mage::getStoreConfig('dev/css/protocolRelativeUris');
         $this->jsProtocolRelativeUris  = Mage::getStoreConfig('dev/js/protocolRelativeUris');
-        $this->storeCssInDb            = Mage::getStoreConfig('dev/css/storeInDb');
-        $this->storeJsInDb             = Mage::getStoreConfig('dev/js/storeInDb');
         $this->addTstampToAssets       = Mage::getStoreConfig('dev/css/addTstampToAssets');
         $this->storeMinifiedCssFolder  = rtrim(Mage::getBaseDir(), DS)
             . DS . trim(Mage::getStoreConfig('dev/css/storeMinifiedCssFolder'), DS);
@@ -54,10 +50,12 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
      * Overwrite original method in order to add a version key
      *
      * @param array $files
+     *
      * @return string
      */
     public function getMergedJsUrl($files)
     {
+
         $versionKey     = $this->getVersionKey();
         $targetFilename = md5(implode(',', $files)) . '.' . $versionKey . '.js';
         $targetDir      = $this->_initMergerDir('js');
@@ -78,6 +76,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
      *
      * @param string $file
      * @param string $contents
+     *
      * @return string
      */
     public function beforeMergeJs($file, $contents)
@@ -97,6 +96,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
      *
      * @param string $file
      * @param string $contents
+     *
      * @return string
      */
     public function beforeMergeCss($file, $contents)
@@ -155,6 +155,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
      * Overwrite original method in order to add a version key
      *
      * @param array $files
+     *
      * @return string
      */
     public function getMergedCssUrl($files)
@@ -178,9 +179,10 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
      * Generate url for merged file of given $type
      *
      * @param string $type
-     * @param array $files
+     * @param array  $files
      * @param string $targetDir
      * @param string $targetFilename
+     *
      * @return string
      */
     protected function generateMergedUrl($type, array $files, $targetDir, $targetFilename)
@@ -189,18 +191,66 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
 
         // relative path
         $relativePath = ltrim(str_replace(Mage::getBaseDir('media'), '', $path), DS);
-        /* @var $dbStorage Mage_Core_Model_File_Storage_Database */
-        $dbStorage = $this->getDbStorage();
-        if (!$dbStorage->fileExists($relativePath)) {
-            $coreHelper = Mage::helper('core');
-            /* @var $coreHelper Mage_Core_Helper_Data */
-            if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMerge' . ucfirst($type)), $type)) {
-                Mage::throwException("Error while merging {$type} files to path: " . $relativePath);
-            }
-            $dbStorage->saveFile($relativePath);
+
+        $mergedUrl = Mage::getBaseUrl('media') . $type . DS . $targetFilename;
+        $storage = Mage::getStoreConfig('dev/' . $type . '/storage');
+
+        /* @var $coreHelper Mage_Core_Helper_Data */
+        $coreHelper = Mage::helper('core');
+
+        switch ($storage) {
+            case Aoe_JsCssTstamp_Model_System_Config_Source_Storage::FILESYSTEM;
+                /**
+                 * Using the file system to store the file
+                 */
+                if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMerge' . ucfirst($type)), $type)) {
+                    Mage::throwException("Error while merging {$type} files to path: " . $relativePath);
+                }
+                break;
+            case Aoe_JsCssTstamp_Model_System_Config_Source_Storage::DATABASE:
+                /**
+                 * Using the database to store the files.
+                 * First check if the file exists in the datase. If it exists, no further action is required.
+                 * The file will be delivered directly by a mod_rewrite rule pointing to get.php
+                 */
+                /* @var $dbStorage Mage_Core_Model_File_Storage_Database */
+                $dbStorage = $this->getDbStorage();
+                if (!$dbStorage->fileExists($relativePath)) {
+                    if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMerge' . ucfirst($type)), $type)) {
+                        Mage::throwException("Error while merging {$type} files to path: " . $relativePath);
+                    }
+                    $dbStorage->saveFile($relativePath);
+                }
+                break;
+            case Aoe_JsCssTstamp_Model_System_Config_Source_Storage::CDN;
+                /**
+                 * Using the cdn to store the file.
+                 * Make sure to point the urls correctly to the cdn so that files will be delivered directly from there
+                 * Also note, that Cloudfront using an Amazon S3 bucket does not support compression!
+                 */
+                // check cdn (if available)
+                $cdnUrl = Mage::helper('aoejscsststamp')->getCdnUrl($path);
+                if (!$cdnUrl) {
+                    if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMerge' . ucfirst($type)), $type)) {
+                        Mage::throwException("Error while merging {$type} files to path: " . $relativePath);
+                    }
+
+                    // store file to cdn (if available)
+                    $cdnUrl = Mage::helper('aoejscsststamp')->storeInCdn($path);
+                }
+
+                if ($cdnUrl) {
+                    $mergedUrl = $cdnUrl;
+                } else {
+                    Mage::throwException('Error while processing url');
+                }
+                break;
+            default:
+                Mage::throwException('Unsupported storage mode');
+                break;
         }
 
-        return Mage::getBaseUrl('media') . $type . DS . $targetFilename;
+        return $mergedUrl;
     }
 
     /**
@@ -224,6 +274,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
      * E.g. http://example.com -> //example.com
      *
      * @param string $uri
+     *
      * @return string
      */
     protected function convertToProtocolRelativeUri($uri)
@@ -236,6 +287,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
      * E.g. http://example.com -> //example.com
      *
      * @param string $uri
+     *
      * @return string
      */
     protected function _prepareUrl($uri)

@@ -1,0 +1,16 @@
+{
+    "name":"fbrnc/aoe_jscsststamp",
+    "type":"magento-module",
+    "license":"OSL-3.0",
+    "homepage":"https://github.com/fbrnc/Aoe_JsCssTstamp",
+    "description":"Automatic Versioning of JS and CSS files for Magento.",
+    "authors":[
+        {
+            "name":"Fabrizio Branca",
+            "email":"mail@{firstname}-{lastname}.de"
+        }
+    ],
+    "require":{
+        "magento-hackathon/magento-composer-installer":"*"
+    }
+}
