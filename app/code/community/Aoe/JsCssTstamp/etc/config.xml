@@ -3,7 +3,7 @@
 
 	<modules>
 		<Aoe_JsCssTstamp>
-			<version>0.4.1</version>
+			<version>0.4.5</version>
 		</Aoe_JsCssTstamp>
 	</modules>
 
@@ -21,7 +21,7 @@
 			</aoejscsststamp>
 			<core>
 				<rewrite>
-					<design_package>Aoe_JsCssTstamp_Model_Package</design_package>
+					<design_package>Aoe_JsCssTstamp_Model_Design_Package</design_package>
 				</rewrite>
 			</core>
 		</models>
@@ -57,7 +57,7 @@
 		</resources>
 
 	</global>
-	
+
 	<default>
 		<dev>
 			<js>
@@ -67,6 +67,9 @@
 				<storage>file</storage>
 				<addTstampToAssets>0</addTstampToAssets>
 			</css>
+			<log>
+				<aoeJsCssTstampActive>1</aoeJsCssTstampActive>
+			</log>
 		</dev>
 	</default>
 
