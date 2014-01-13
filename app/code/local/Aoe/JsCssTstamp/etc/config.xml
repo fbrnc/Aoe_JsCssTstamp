@@ -67,6 +67,9 @@
 				<storage>file</storage>
 				<addTstampToAssets>0</addTstampToAssets>
 			</css>
+			<log>
+				<aoeJsCssTstampActive>1</aoeJsCssTstampActive>
+			</log>
 		</dev>
 	</default>
 
