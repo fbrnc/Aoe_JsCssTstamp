@@ -1,7 +1,7 @@
 <?php
 
 // the ugliest hack to resolve class rewrite conflict with Aoe_DesignFallback without adding dependency on it
-if (!class_exists('Aoe_DesignFallback_Model_Design_Package')) {
+if (!class_exists('Aoe_DesignFallback_Model_Design_Package', false)) {
     class Aoe_DesignFallback_Model_Design_Package extends Mage_Core_Model_Design_Package {}
 }
 
