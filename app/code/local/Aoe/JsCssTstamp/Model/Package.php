@@ -1,11 +1,16 @@
 <?php
 
+// the ugliest hack to resolve class rewrite conflict with Aoe_DesignFallback without adding dependency on it
+if (!class_exists('Aoe_DesignFallback_Model_Design_Package')) {
+    class Aoe_DesignFallback_Model_Design_Package extends Mage_Core_Model_Design_Package {}
+}
+
 /**
  * Rewriting package class to add some custom version key to bundled files
  *
  * @author Fabrizio Branca
  */
-class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
+class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Package
 {
     const CACHEKEY = 'aoe_jscsststamp_versionkey';
 
@@ -55,7 +60,6 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package
      */
     public function getMergedJsUrl($files)
     {
-
         $versionKey     = $this->getVersionKey();
         $targetFilename = md5(implode(',', $files)) . '.' . $versionKey . '.js';
         $targetDir      = $this->_initMergerDir('js');
