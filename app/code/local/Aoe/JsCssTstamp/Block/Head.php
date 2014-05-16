@@ -20,7 +20,6 @@ class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head {
 		return parent::getCssJsHtml();
 	}
 
-
 	/**
 	 * Get Js html
 	 *
@@ -121,6 +120,9 @@ class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head {
 			$mergeCallback = null;
 		}
 
+		$staticItems = $this->_reorderItems($staticItems);
+		$skinItems   = $this->_reorderItems($skinItems);
+
 		// get static files from the js folder, no need in lookups
 		foreach ($staticItems as $params => $rows) {
 			$items[$params] = array(
@@ -169,4 +171,22 @@ class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head {
 		return $html;
 	}
 
+	/**
+	 * Reorder items - move items by '<empty string>' to the end of the array
+	 *
+	 * @param array $items
+	 * @return array
+	 */
+	protected function _reorderItems(array $items)
+	{
+		if (isset($items[''])) {
+			$defaultItem = $items[''];
+			unset($items['']);
+			ksort($items);
+			$items = array_values($items);
+			array_push($items, $defaultItem);
+		}
+
+		return $items;
+	}
 }
