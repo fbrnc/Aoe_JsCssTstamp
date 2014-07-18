@@ -2,7 +2,7 @@
 
 // the ugliest hack to resolve class rewrite conflict with Aoe_DesignFallback without adding dependency on it
 if (!Mage::helper('aoejscsststamp')->isModuleEnabled('Aoe_DesignFallback')) {
-    class Aoe_DesignFallback_Model_Design_Package extends Mage_Core_Model_Design_Package {}
+    class Aoe_DesignFallback_Model_Design_Package extends Mage_Core_Model_Design_Package { }
 }
 
 /**
@@ -29,12 +29,10 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
     public function __construct()
     {
         $this->cssProtocolRelativeUris = Mage::getStoreConfig('dev/css/protocolRelativeUris');
-        $this->jsProtocolRelativeUris  = Mage::getStoreConfig('dev/js/protocolRelativeUris');
-        $this->addTstampToAssets       = Mage::getStoreConfig('dev/css/addTstampToAssets');
-        $this->storeMinifiedCssFolder  = rtrim(Mage::getBaseDir(), DS)
-            . DS . trim(Mage::getStoreConfig('dev/css/storeMinifiedCssFolder'), DS);
-        $this->storeMinifiedJsFolder   = rtrim(Mage::getBaseDir(), DS)
-            . DS . trim(Mage::getStoreConfig('dev/js/storeMinifiedJsFolder'), DS);
+        $this->jsProtocolRelativeUris = Mage::getStoreConfig('dev/js/protocolRelativeUris');
+        $this->addTstampToAssets = Mage::getStoreConfig('dev/css/addTstampToAssets');
+        $this->storeMinifiedCssFolder = rtrim(Mage::getBaseDir(), DS) . DS . trim(Mage::getStoreConfig('dev/css/storeMinifiedCssFolder'), DS);
+        $this->storeMinifiedJsFolder = rtrim(Mage::getBaseDir(), DS) . DS . trim(Mage::getStoreConfig('dev/js/storeMinifiedJsFolder'), DS);
 
         parent::__construct();
     }
@@ -62,9 +60,9 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
      */
     public function getMergedJsUrl($files)
     {
-        $versionKey     = $this->getVersionKey();
+        $versionKey = $this->getVersionKey();
         $targetFilename = md5(implode(',', $files)) . '.' . $versionKey . '.js';
-        $targetDir      = $this->_initMergerDir('js');
+        $targetDir = $this->_initMergerDir('js');
         if (!$targetDir) {
             return '';
         }
@@ -166,9 +164,9 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
      */
     public function getMergedCssUrl($files)
     {
-        $versionKey     = $this->getVersionKey();
+        $versionKey = $this->getVersionKey();
         $targetFilename = md5(implode(',', $files)) . '.' . $versionKey . '.css';
-        $targetDir      = $this->_initMergerDir('css');
+        $targetDir = $this->_initMergerDir('css');
         if (!$targetDir) {
             return '';
         }
@@ -185,7 +183,7 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
      * Generate url for merged file of given $type
      *
      * @param string $type
-     * @param array  $files
+     * @param array $files
      * @param string $targetDir
      * @param string $targetFilename
      *
@@ -196,9 +194,9 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
         // This is to fix the secure/unsecure URL problem
         $store = $this->getStore();
         if ($store->isAdmin()) {
-                $secure = $store->isAdminUrlSecure();
+            $secure = $store->isAdminUrlSecure();
         } else {
-                $secure = $store->isFrontUrlSecure() && Mage::app()->getRequest()->isSecure();
+            $secure = $store->isFrontUrlSecure() && Mage::app()->getRequest()->isSecure();
         }
         $targetFilename = ($secure ? 's' : 'u') . '.' . $targetFilename;
 
@@ -289,7 +287,6 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
      * E.g. http://example.com -> //example.com
      *
      * @param string $uri
-     *
      * @return string
      */
     protected function convertToProtocolRelativeUri($uri)
@@ -302,7 +299,6 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
      * E.g. http://example.com -> //example.com
      *
      * @param string $uri
-     *
      * @return string
      */
     protected function _prepareUrl($uri)
@@ -313,9 +309,9 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
         }
 
         if ($this->addTstampToAssets) {
-		    if (Mage::getStoreConfigFlag('dev/log/aoeJsCssTstampActive')) {
-		        Mage::log('Aoe_JsCssTstamp: ' . $uri);
-		    }
+            if (Mage::getStoreConfigFlag('dev/log/aoeJsCssTstampActive')) {
+                Mage::log('Aoe_JsCssTstamp: ' . $uri);
+            }
             $matches = array();
             if (preg_match('/(.*)\.(gif|png|jpg)$/i', $uri, $matches)) {
                 $uri = $matches[1] . '.' . $this->getVersionKey() . '.' . $matches[2];
