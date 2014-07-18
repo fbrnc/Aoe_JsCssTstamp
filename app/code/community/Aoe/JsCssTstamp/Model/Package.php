@@ -34,7 +34,9 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
         $this->storeMinifiedCssFolder = rtrim(Mage::getBaseDir(), DS) . DS . trim(Mage::getStoreConfig('dev/css/storeMinifiedCssFolder'), DS);
         $this->storeMinifiedJsFolder = rtrim(Mage::getBaseDir(), DS) . DS . trim(Mage::getStoreConfig('dev/js/storeMinifiedJsFolder'), DS);
 
-        parent::__construct();
+        if (method_exists(get_parent_class($this), '__construct')) {
+            parent::__construct();
+        }
     }
 
     /**
