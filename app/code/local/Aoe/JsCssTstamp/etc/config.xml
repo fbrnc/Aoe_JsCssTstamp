@@ -65,6 +65,9 @@
 				<addTstampToAssets>0</addTstampToAssets>
 				<storeMinifiedCssFolder><![CDATA[minified/css]]></storeMinifiedCssFolder>
 			</css>
+			<log>
+				<aoeJsCssTstampActive>1</aoeJsCssTstampActive>
+			</log>
 		</dev>
 	</default>
 
