@@ -34,7 +34,9 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
         $this->storeMinifiedCssFolder = rtrim(Mage::getBaseDir(), DS) . DS . trim(Mage::getStoreConfig('dev/css/storeMinifiedCssFolder'), DS);
         $this->storeMinifiedJsFolder = rtrim(Mage::getBaseDir(), DS) . DS . trim(Mage::getStoreConfig('dev/js/storeMinifiedJsFolder'), DS);
 
-        if (method_exists(get_parent_class($this), '__construct')) {
+        // is_callable is aware of context, and you can ask it things like parent::__construct from within
+        // a child constructor, see http://php.net/manual/en/function.is-callable.php#104632
+        if (is_callable('parent::__construct')) {
             parent::__construct();
         }
     }
