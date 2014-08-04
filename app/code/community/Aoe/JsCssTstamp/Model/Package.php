@@ -195,15 +195,7 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
      */
     protected function generateMergedUrl($type, array $files, $targetDir, $targetFilename)
     {
-        // This is to fix the secure/unsecure URL problem
-        $store = $this->getStore();
-        if ($store->isAdmin()) {
-            $secure = $store->isAdminUrlSecure();
-        } else {
-            $secure = $store->isFrontUrlSecure() && Mage::app()->getRequest()->isSecure();
-        }
-        $targetFilename = ($secure ? 's' : 'u') . '.' . $targetFilename;
-
+        $targetFilename = $this->getProtocolSpecificTargetFileName($targetFilename);
         $path = $targetDir . DS . $targetFilename;
 
         // relative path
@@ -323,5 +315,22 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
         }
 
         return $uri;
+    }
+
+    /**
+     * This is to fix the secure/unsecure URL problem
+     *
+     * @param string $targetFilename
+     * @return string
+     */
+    protected function getProtocolSpecificTargetFileName($targetFilename)
+    {
+        $store = $this->getStore();
+        if ($store->isAdmin()) {
+            $secure = $store->isAdminUrlSecure();
+        } else {
+            $secure = $store->isFrontUrlSecure() && Mage::app()->getRequest()->isSecure();
+        }
+        return ($secure ? 's' : 'u') . '.' . $targetFilename;
     }
 }
