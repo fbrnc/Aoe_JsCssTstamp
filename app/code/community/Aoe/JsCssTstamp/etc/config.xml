@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Aoe_JsCssTstamp>
-            <version>0.5.1</version>
+            <version>0.6.0</version>
         </Aoe_JsCssTstamp>
     </modules>
 
@@ -58,6 +58,7 @@
             </aoejscsststamp_setup>
         </resources>
     </global>
+
     <default>
         <dev>
             <js>

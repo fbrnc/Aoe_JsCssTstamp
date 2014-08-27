@@ -231,29 +231,6 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
                     $dbStorage->saveFile($relativePath);
                 }
                 break;
-            case Aoe_JsCssTstamp_Model_System_Config_Source_Storage::CDN;
-                /**
-                 * Using the cdn to store the file.
-                 * Make sure to point the urls correctly to the cdn so that files will be delivered directly from there
-                 * Also note, that Cloudfront using an Amazon S3 bucket does not support compression!
-                 */
-                // check cdn (if available)
-                $cdnUrl = Mage::helper('aoejscsststamp')->getCdnUrl($path);
-                if (!$cdnUrl) {
-                    if (!$coreHelper->mergeFiles($files, $path, false, array($this, 'beforeMerge' . ucfirst($type)), $type)) {
-                        Mage::throwException("Error while merging {$type} files to path: " . $relativePath);
-                    }
-
-                    // store file to cdn (if available)
-                    $cdnUrl = Mage::helper('aoejscsststamp')->storeInCdn($path);
-                }
-
-                if ($cdnUrl) {
-                    $mergedUrl = $cdnUrl;
-                } else {
-                    Mage::throwException('Error while processing url');
-                }
-                break;
             default:
                 Mage::throwException('Unsupported storage mode');
                 break;

@@ -2,7 +2,6 @@
 
 class Aoe_JsCssTstamp_Model_Observer
 {
-
     /**
      * Clean media cache after event
      *
@@ -19,5 +18,4 @@ class Aoe_JsCssTstamp_Model_Observer
             ->deleteDirectory('js')
             ->deleteDirectory('css');
     }
-
 }

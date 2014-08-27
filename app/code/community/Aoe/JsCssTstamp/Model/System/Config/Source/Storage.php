@@ -2,10 +2,14 @@
 
 class Aoe_JsCssTstamp_Model_System_Config_Source_Storage
 {
-
-    CONST DATABASE = 'db';
-    CONST FILESYSTEM = 'file';
-    CONST CDN = 'CDN';
+    /**@+
+     * Supported mode codes
+     *
+     * @var string
+     */
+    const DATABASE   = 'db';
+    const FILESYSTEM = 'file';
+    /**@-*/
 
     /**
      * Options getter
@@ -17,8 +21,6 @@ class Aoe_JsCssTstamp_Model_System_Config_Source_Storage
         return array(
             array('value' => self::DATABASE, 'label' => Mage::helper('aoejscsststamp')->__('Database')),
             array('value' => self::FILESYSTEM, 'label' => Mage::helper('aoejscsststamp')->__('Filesystem')),
-            array('value' => self::CDN, 'label' => Mage::helper('aoejscsststamp')->__('CDN')),
         );
     }
-
 }

@@ -23,23 +23,23 @@ If you enable the Add timestamps to asset files feature, also add these lines to
 
     RewriteRule (.*)\.(\d{10})\.(gif|png|jpg)$ $1.$3 [L,NC]
 
-If you use NGINX, add the following lines to your nginx config within the server block for your site 
+If you use NGINX, add the following lines to your nginx config within the server block for your site
 if you use database as the file storage location:
 
     location ^~ /media/js/ {
-            try_files $uri $uri/ @handlerjs;
+        try_files $uri $uri/ @handlerjs;
     }
-    
+
     location ^~ /media/css/ {
-            try_files $uri $uri/ @handlercss;
+        try_files $uri $uri/ @handlercss;
     }
-    
+
     location @handlerjs {
-            rewrite /media/js/ /get.php;
+        rewrite /media/js/ /get.php;
     }
-    
+
     location @handlercss {
-            rewrite /media/css/ /get.php;
+        rewrite /media/css/ /get.php;
     }
 
 ### If you enable the Add timestamps to asset files feature, also add these lines to your nginx config file
@@ -47,3 +47,7 @@ they should NOT be added to any particular location block.
 
     rewrite "^/(.*)\.(\d{10})\.(gif|png|jpg)$" /$1.$3 last;
 
+## Release notes
+
+#### v 0.6.0
+CDN support is removed. Use https://github.com/AOEpeople/Aoe_MergedJsCssCdn if you need CDN support.
