@@ -26,7 +26,7 @@
                         </storeMinifiedJsFolder>
                         <lifetime translate="label comment" module="aoejscsststamp">
                             <label>Lifetime</label>
-                            <comment><![CDATA[Expires and Cache-Control header lifetimes to be set while uploading to Amazon S3 (will only work with OnePica_ImageCDN enabled)]]></comment>
+                            <comment><![CDATA[Expires and Cache-Control header lifetimes to be set while uploading to Amazon S3 (will only work with Aoe_AmazonCdn enabled)]]></comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>40</sort_order>
                             <show_in_default>1</show_in_default>
@@ -58,7 +58,7 @@
                         </protocolRelativeUris>
                         <lifetime translate="label comment" module="aoejscsststamp">
                             <label>Lifetime</label>
-                            <comment><![CDATA[Expires and Cache-Control header lifetimes to be set while uploading to Amazon S3 (will only work with OnePica_ImageCDN enabled)]]></comment>
+                            <comment><![CDATA[Expires and Cache-Control header lifetimes to be set while uploading to Amazon S3 (will only work with Aoe_AmazonCdn enabled)]]></comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
