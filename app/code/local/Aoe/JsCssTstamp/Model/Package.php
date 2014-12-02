@@ -25,6 +25,7 @@ class Aoe_JsCssTstamp_Model_Package extends Mage_Core_Model_Design_Package {
 	 * Hint: Parent class is a plain php class not extending anything. So don't try to move this content to _construct()
 	 */
 	public function __construct() {
+		parent::__construct();
 		$this->cssProtocolRelativeUris = Mage::getStoreConfig('dev/css/protocolRelativeUris');
 		$this->jsProtocolRelativeUris = Mage::getStoreConfig('dev/js/protocolRelativeUris');
 
