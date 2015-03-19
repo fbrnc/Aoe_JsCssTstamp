@@ -18,6 +18,8 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
     protected $jsProtocolRelativeUris;
     protected $dbStorage;
     protected $addTstampToAssets;
+    protected $addTstampToAssetsCss;
+    protected $addTstampToAssetsJs;
     protected $storeMinifiedCssFolder;
     protected $storeMinifiedJsFolder;
 
@@ -31,6 +33,8 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
         $this->cssProtocolRelativeUris = Mage::getStoreConfig('dev/css/protocolRelativeUris');
         $this->jsProtocolRelativeUris = Mage::getStoreConfig('dev/js/protocolRelativeUris');
         $this->addTstampToAssets = Mage::getStoreConfig('dev/css/addTstampToAssets');
+        $this->addTstampToAssetsCss = Mage::getStoreConfig('dev/css/addTstampToCssFiles');
+        $this->addTstampToAssetsJs = Mage::getStoreConfig('dev/js/addTstampToJsFiles');
         $this->storeMinifiedCssFolder = rtrim(Mage::getBaseDir(), DS) . DS . trim(Mage::getStoreConfig('dev/css/storeMinifiedCssFolder'), DS);
         $this->storeMinifiedJsFolder = rtrim(Mage::getBaseDir(), DS) . DS . trim(Mage::getStoreConfig('dev/js/storeMinifiedJsFolder'), DS);
 
@@ -309,5 +313,31 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
             $secure = $store->isFrontUrlSecure() && Mage::app()->getRequest()->isSecure();
         }
         return ($secure ? 's' : 'u') . '.' . $targetFilename;
+    }
+
+    /**
+     * Add version to js/css files
+     *
+     * @param string $file
+     * @param array $params
+     * @return string
+     */
+    public function getSkinUrl($file = null, array $params = array())
+    {
+        $result = parent::getSkinUrl($file, $params);
+
+        if ($this->addTstampToAssetsCss) {
+            $matches = array();
+            if (preg_match('/(.*)\.(css)$/i', $result, $matches)) {
+                $result = $matches[1] . '.' . $this->getVersionKey() . '.' . $matches[2];
+            }
+        } elseif ($this->addTstampToAssetsJs) {
+            $matches = array();
+            if (preg_match('/(.*)\.(js)$/i', $result, $matches)) {
+                $result = $matches[1] . '.' . $this->getVersionKey() . '.' . $matches[2];
+            }
+        }
+
+        return $result;
     }
 }
