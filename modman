@@ -1,2 +1,3 @@
-app/etc/modules/Aoe_JsCssTstamp.xml					app/etc/modules/Aoe_JsCssTstamp.xml
-app/code/local/Aoe/JsCssTstamp/						app/code/local/Aoe/JsCssTstamp/
+app/etc/modules/Aoe_JsCssTstamp.xml    app/etc/modules/Aoe_JsCssTstamp.xml
+app/code/community/Aoe/JsCssTstamp/    app/code/community/Aoe/JsCssTstamp/
+lib/aoe_jscsststamp/                   lib/aoe_jscsststamp/
