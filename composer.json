@@ -11,6 +11,7 @@
         }
     ],
     "require":{
-        "magento-hackathon/magento-composer-installer":"*"
+        "magento-hackathon/magento-composer-installer":"*",
+        "fbrnc/aoe_designfallback":"*"
     }
 }
