@@ -1,0 +1,3 @@
+config:
+  default/dev/css/merge_css_files: 0
+  default/dev/css/addTstampToCssFiles: 1

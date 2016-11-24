@@ -1,0 +1,2 @@
+config:
+  default/dev/css/merge_css_files: 1

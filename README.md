@@ -1,5 +1,9 @@
 # AOE_JsCssTimestamp
 
+[![Build Status](https://travis-ci.org/AOEpeople/Aoe_JsCssTstamp.svg)](https://travis-ci.org/AOEpeople/Aoe_JsCssTstamp)
+
+Author: [Fabrizio Branca](https://twitter.com/fbrnc)
+
 ## Overview
 
 This module adds the last-modified timestamp to your JS and CSS merged files to enabled browser-based caching and speed up your server.
@@ -28,8 +32,10 @@ RewriteRule .* ../get.php [L]
 If you enable one of the following in the configuration make sure to add this to your .htaccess file:
 
 - Add version to assets (gif|png|jpg)
-- Add version to assets (css)
-- Add version to assets (js)
+- Add version to assets (css) NOTE: only works with skin_css (not js_css)
+- Add version to assets (js) NOTE: only works with skin_js (not js - coming from /js)
+
+
 
 ```
 RewriteRule (.*)\.(\d{10})\.(gif|png|jpg)$ $1.$3 [L,NC]
@@ -67,11 +73,32 @@ rewrite "^/(.*)\.(\d{10})\.(gif|png|jpg)$" /$1.$3 last;
 
 ## Release notes
 
-#### v 0.7.0
+#### v0.8.0
+
+- Added system configuration setting to take store id's into account when generating the filename hash
+- Added configuration to sort assets by priorities:
+```
+<action method="addItem">
+    <type>skin_js</type>
+    <name>js/app.js</name>
+    <params/>
+    <if/>
+    <cond/>
+    <prio>100</prio>
+</action>
+```
+
+#### v0.7.1
+
+- added unit tests
+- removed JSMin since it wasn't used
+- getSkinUrl now also optionally adds the version key to image assets
+
+#### v0.7.0
 
 - Allowing to add timestamps to js and css files too now. Feature "inspired" by [Tymek's](https://github.com/tmotyl) [commit](https://github.com/macopedia/Aoe_JsCssTstamp/commit/5471779099fea1c259c49e89ae8308de4a8138e9).
 
-#### v 0.6.0
+#### v0.6.0
 
 - CDN support is removed. Use https://github.com/AOEpeople/Aoe_MergedJsCssCdn if you need CDN support.
 

@@ -8,6 +8,17 @@
  */
 class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head
 {
+    const DEFAULT_PRIO = 50;
+
+    /**
+     * @var bool
+     */
+    protected $_sortAssets = false;
+
+    /**
+     * @var int
+     */
+    protected $_addIndex = 0;
 
     /**
      * Get HEAD HTML with CSS/JS/RSS definitions
@@ -20,7 +31,37 @@ class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head
         if (!isset($this->_data['items'])) {
             return '';
         }
+
+        if ($this->_sortAssets) {
+            $this->_sortAssets();
+            $this->_sortAssets = false;
+        }
+
         return parent::getCssJsHtml();
+    }
+
+    /**
+     * Sort the assets.
+     * Assets with the same priority will be sorted by their add index
+     * @return void
+     */
+    protected function _sortAssets()
+    {
+        uasort(
+            $this->_data['items'],
+            function($a, $b) {
+                if ($a == $b) {
+                    return 0;
+                }
+
+                // use add index for same prio assets
+                if ($a['prio'] == $b['prio']) {
+                    return $a['add_index'] > $b['add_index'] ? 1 : -1;
+                }
+
+                return $a['prio'] > $b['prio'] ? 1 : -1;
+            }
+        );
     }
 
     /**
@@ -73,6 +114,48 @@ class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head
     }
 
     /**
+     * Add HEAD Item
+     *
+     * Allowed types:
+     *  - js
+     *  - js_css
+     *  - skin_js
+     *  - skin_css
+     *  - ext_js
+     *  - ext_css
+     *  - rss
+     *
+     * @param string $type
+     * @param string $name
+     * @param string $params
+     * @param string $if
+     * @param string $cond
+     * @param integer $prio
+     * @return Mage_Page_Block_Html_Head
+     */
+    public function addItem($type, $name, $params = null, $if = null, $cond = null, $prio = self::DEFAULT_PRIO)
+    {
+        if ($type === 'skin_css' && empty($params)) {
+            $params = 'media="all"';
+        }
+        $this->_data['items'][$type . '/' . $name] = [
+            'type'      => $type,
+            'name'      => $name,
+            'params'    => $params,
+            'if'        => (bool) $if ? $if : null,
+            'cond'      => (bool) $cond ? $cond : null,
+            'prio'      => $prio ? (int) $prio : self::DEFAULT_PRIO,
+            'add_index' => $this->_addIndex++,
+        ];
+
+        if ($prio != self::DEFAULT_PRIO) {
+            $this->_sortAssets = true;
+        }
+
+        return $this;
+    }
+
+    /**
      * Add Skin CSS
      * convenience method
      *
@@ -102,6 +185,68 @@ class Aoe_JsCssTstamp_Block_Head extends Mage_Page_Block_Html_Head
     {
         $this->addItem('skin_js', $name, $params, $if, $cond);
         return $this;
+    }
+
+    /**
+     * Add External JS
+     * convenience method
+     *
+     * @param string $name
+     * @param string $params
+     * @param string $if
+     * @param string $cond
+     *
+     * @return $this
+     */
+    public function addExtJs($name, $params = "", $if = null, $cond = null)
+    {
+        $this->addItem('ext_js', $name, $params, $if, $cond);
+
+        return $this;
+    }
+
+    /**
+     * Add External CSS
+     * convenience method
+     *
+     * @param string $name
+     * @param string $params
+     * @param string $if
+     * @param string $cond
+     *
+     * @return $this
+     */
+    public function addExtCss($name, $params = "", $if = null, $cond = null)
+    {
+        $this->addItem('ext_css', $name, $params, $if, $cond);
+
+        return $this;
+    }
+
+    /**
+     * Classify HTML head item and queue it into "lines" array
+     *
+     * @param array  &$lines
+     * @param string $itemIf
+     * @param string $itemType
+     * @param string $itemParams
+     * @param string $itemName
+     * @param array  $itemThe
+     */
+    protected function _separateOtherHtmlHeadElements(&$lines, $itemIf, $itemType, $itemParams, $itemName, $itemThe)
+    {
+        parent::_separateOtherHtmlHeadElements($lines, $itemIf, $itemType, $itemParams, $itemName, $itemThe);
+
+        $params = $itemParams ? ' ' . $itemParams : '';
+        $href = $itemName;
+        switch ($itemType) {
+            case 'ext_js':
+                $lines[$itemIf]['other'][] = sprintf('<script type="text/javascript" src="%s"%s></script>', $href, $params);
+                break;
+            case 'ext_css':
+                $lines[$itemIf]['other'][] = sprintf('<link rel="stylesheet" type="text/css" href="%s"%s />', $href, $params);
+                break;
+        }
     }
 
     /**

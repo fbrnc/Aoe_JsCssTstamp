@@ -1,0 +1,3 @@
+config:
+  default/dev/js/merge_files: 0
+  default/dev/js/addTstampToJsFiles: 1

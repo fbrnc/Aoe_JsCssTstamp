@@ -53,6 +53,17 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </addTstampToJsFiles>
+                        <createHashFromFileContent translate="label comment" module="aoejscsststamp">
+                            <label>Create merged filename hash from file content</label>
+                            <comment>
+                                <![CDATA[If set to Yes, It will create hash of file content instead of file name which is being used in merged filename. Ex. s.9c859d05114b173356af905f073e4d0f.1448397352.js]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>150</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </createHashFromFileContent>
                     </fields>
                 </js>
                 <css>
@@ -116,6 +127,28 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </addTstampToCssFiles>
+                        <createHashFromFileContent translate="label comment" module="aoejscsststamp">
+                            <label>Create merged filename hash from file content</label>
+                            <comment>
+                                <![CDATA[If set to Yes, it will create hash of file content instead of file name which is being used in merged filename. Ex. s.9c859d05114b173356af905f073e4d0f.1448397352.css]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>150</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </createHashFromFileContent>
+                        <addStoreIdToHash translate="label comment" module="aoejscsststamp">
+                            <label>Add store ID to merged filename hash</label>
+                            <comment>
+                                <![CDATA[If set to Yes, the merged filename hash will take different store view's into consideration. This might be helpful if you have a multi-store set-up with different base URL's.]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>200</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </addStoreIdToHash>
                     </fields>
                 </css>
                 <log>
