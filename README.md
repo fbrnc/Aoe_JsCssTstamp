@@ -1,3 +1,6 @@
+
+# Please use https://github.com/AOEpeople/Aoe_JsCssTstamp instead!
+
 # AOE_JsCssTimestamp
 
 ## Overview
