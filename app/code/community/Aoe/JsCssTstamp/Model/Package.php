@@ -12,6 +12,8 @@ if (!Mage::helper('aoejscsststamp')->isModuleEnabled('Aoe_DesignFallback')) {
  */
 class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Package
 {
+    const XML_PATH_CACHEKEY = 'aoe/jscsststamp/aoe_jscsststamp_versionkey';
+
     const CACHEKEY = 'aoe_jscsststamp_versionkey';
 
     protected $cssProtocolRelativeUris;
@@ -245,6 +247,7 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
 
     /**
      * Get a cached timestamp as version key
+     * If none then try get from config
      *
      * @return int timestamp
      */
@@ -252,8 +255,12 @@ class Aoe_JsCssTstamp_Model_Package extends Aoe_DesignFallback_Model_Design_Pack
     {
         $timestamp = Mage::app()->loadCache(self::CACHEKEY);
         if (empty($timestamp)) {
-            $timestamp = time();
-            Mage::app()->saveCache($timestamp, self::CACHEKEY, array(), null);
+            $timestamp = Mage::getStoreConfig(self::XML_PATH_CACHEKEY);
+            if (empty($timestamp)) {
+                $timestamp = time();
+                Mage::getConfig()->saveConfig(self::XML_PATH_CACHEKEY, $timestamp);
+                Mage::app()->saveCache($timestamp, self::CACHEKEY, array(), null);
+            }
         }
 
         return $timestamp;

@@ -17,5 +17,8 @@ class Aoe_JsCssTstamp_Model_Observer
         $dbStorage->getDirectoryModel()
             ->deleteDirectory('js')
             ->deleteDirectory('css');
+
+        // clean timestamp from config
+        Mage::getConfig()->saveConfig(Aoe_JsCssTstamp_Model_Package::XML_PATH_CACHEKEY, null);
     }
 }
